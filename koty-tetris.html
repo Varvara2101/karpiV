@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Коты-тетрис 6×6</title>
+<style>
+  :root{
+    --bg1:#ffe9c7;
+    --bg2:#ffd3a5;
+    --cell:#fff6ea;
+    --cell-border:#e8c9a0;
+    --accent:#ff8a3d;
+    --text:#4a2e1a;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:linear-gradient(160deg,var(--bg1),var(--bg2));
+    color:var(--text);
+    display:flex;align-items:center;justify-content:center;
+    min-height:100vh;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+  }
+  .wrap{
+    width:100%;
+    max-width:420px;
+    padding:16px;
+  }
+  h1{
+    text-align:center;
+    margin:0 0 12px;
+    font-size:26px;
+    letter-spacing:1px;
+  }
+  .stats{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:rgba(255,255,255,0.6);
+    border-radius:14px;
+    padding:10px 16px;
+    margin-bottom:14px;
+    font-weight:600;
+    font-size:15px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.08);
+  }
+  .stats span.value{
+    color:var(--accent);
+    font-size:17px;
+    margin-left:6px;
+  }
+  .next-box{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .next-preview{
+    width:34px;height:34px;
+    background:var(--cell);
+    border:2px solid var(--cell-border);
+    border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .next-preview svg{width:80%;height:80%;}
+  #board{
+    position:relative;
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    grid-template-rows:repeat(6,1fr);
+    gap:4px;
+    width:100%;
+    aspect-ratio:1/1;
+    background:rgba(255,255,255,0.35);
+    padding:6px;
+    border-radius:16px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.12);
+  }
+  .cell{
+    background:var(--cell);
+    border:2px solid var(--cell-border);
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background 0.1s ease;
+  }
+  .cell.falling{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(255,138,61,0.5) inset;
+  }
+  .cell svg{
+    width:84%;
+    height:84%;
+    pointer-events:none;
+  }
+  .cell.pop svg{
+    animation:pop 0.18s ease;
+  }
+  @keyframes pop{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.3);}
+    100%{transform:scale(0);}
+  }
+  .controls{
+    display:flex;
+    gap:8px;
+    margin-top:14px;
+  }
+  button{
+    flex:1;
+    padding:14px 6px;
+    font-size:18px;
+    font-weight:700;
+    border:none;
+    border-radius:12px;
+    background:var(--accent);
+    color:#fff;
+    cursor:pointer;
+    box-shadow:0 3px 8px rgba(255,138,61,0.4);
+  }
+  button.secondary{
+    background:#fff;
+    color:var(--accent);
+    border:2px solid var(--accent);
+    box-shadow:none;
+    font-size:14px;
+    font-weight:600;
+  }
+  button:active{transform:scale(0.95);}
+  .hint{
+    text-align:center;
+    font-size:12px;
+    opacity:0.65;
+    margin-top:10px;
+  }
+  .bottom-row{
+    display:flex;
+    gap:8px;
+    margin-top:8px;
+  }
+  .overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(74,46,26,0.85);
+    border-radius:16px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    text-align:center;
+    padding:20px;
+    gap:10px;
+  }
+  .overlay.hidden{display:none;}
+  .overlay h2{margin:0;font-size:24px;}
+  .overlay p{margin:0;font-size:16px;}
+  .overlay button{
+    margin-top:8px;
+    padding:12px 24px;
+    flex:none;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🐾 Коты-тетрис</h1>
+  <div class="stats">
+    <div>Очки:<span class="value" id="score">0</span></div>
+    <div class="next-box">Далее:<div class="next-preview" id="nextPreview"></div></div>
+    <div>Рекорд:<span class="value" id="record">0</span></div>
+  </div>
+  <div id="board">
+    <div class="overlay hidden" id="overlay">
+      <h2>Игра окончена</h2>
+      <p id="finalScoreText"></p>
+      <button id="restartBtn">Играть снова</button>
+    </div>
+  </div>
+  <div class="controls">
+    <button id="leftBtn">◀</button>
+    <button id="downBtn">⬇</button>
+    <button id="rightBtn">▶</button>
+  </div>
+  <div class="bottom-row">
+    <button class="secondary" id="dropBtn">⏬ Уронить сразу</button>
+    <button class="secondary" id="newGameBtn">Новая игра</button>
+  </div>
+  <div class="hint">Стрелки ← → или кнопки — двигать котика, ↓ — ускорить падение, Пробел — уронить сразу</div>
+</div>
+
+<script>
+(function(){
+  const SIZE = 6;
+  const COLORS = [
+    { hex:"#9e9e9e", dark:"#6f6f6f" }, // серый
+    { hex:"#e07b39", dark:"#a85a24" }, // рыжий
+    { hex:"#fbfbfb", dark:"#c9c9c9" }, // белый
+    { hex:"#3a3a3a", dark:"#1c1c1c" }, // чёрный
+    { hex:"#8b5a2b", dark:"#5f3b1a" }  // коричневый
+  ];
+
+  const boardEl = document.getElementById('board');
+  const scoreEl = document.getElementById('score');
+  const recordEl = document.getElementById('record');
+  const nextPreviewEl = document.getElementById('nextPreview');
+  const overlayEl = document.getElementById('overlay');
+  const finalScoreText = document.getElementById('finalScoreText');
+
+  let board, piece, nextColor, score, record, gameOver, piecesLanded, tickTimer, currentSpeed;
+
+  record = parseInt(localStorage.getItem('catsTetrisRecord') || '0', 10);
+  recordEl.textContent = record;
+
+  function randColor(){ return Math.floor(Math.random()*COLORS.length); }
+
+  function catSVG(colorIndex){
+    const c = COLORS[colorIndex];
+    return `
+    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="12,20 20,4 28,20" fill="${c.hex}" stroke="${c.dark}" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="36,20 44,4 52,20" fill="${c.hex}" stroke="${c.dark}" stroke-width="2" stroke-linejoin="round"/>
+      <circle cx="32" cy="34" r="24" fill="${c.hex}" stroke="${c.dark}" stroke-width="2"/>
+      <circle cx="23" cy="30" r="3.2" fill="#2b2b2b"/>
+      <circle cx="41" cy="30" r="3.2" fill="#2b2b2b"/>
+      <polygon points="32,38 28,43 36,43" fill="#e07b39"/>
+      <line x1="32" y1="43" x2="32" y2="47" stroke="#5a3d2b" stroke-width="1.5"/>
+      <line x1="8" y1="38" x2="20" y2="36" stroke="${c.dark}" stroke-width="1.5"/>
+      <line x1="8" y1="44" x2="20" y2="44" stroke="${c.dark}" stroke-width="1.5"/>
+      <line x1="44" y1="36" x2="56" y2="38" stroke="${c.dark}" stroke-width="1.5"/>
+      <line x1="44" y1="44" x2="56" y2="44" stroke="${c.dark}" stroke-width="1.5"/>
+    </svg>`;
+  }
+
+  function emptyBoard(){
+    const b = [];
+    for(let r=0;r<SIZE;r++){
+      b.push(new Array(SIZE).fill(null));
+    }
+    return b;
+  }
+
+  function findMatches(b){
+    const matched = new Set();
+    function key(r,c){ return r*SIZE+c; }
+    for(let r=0;r<SIZE;r++){
+      let runStart = 0;
+      for(let c=1;c<=SIZE;c++){
+        const prev = b[r][c-1];
+        const cur = c<SIZE ? b[r][c] : null;
+        if(cur === prev && cur !== null){ continue; }
+        const runLen = c - runStart;
+        if(runLen >= 3 && prev !== null){
+          for(let k=runStart;k<c;k++) matched.add(key(r,k));
+        }
+        runStart = c;
+      }
+    }
+    for(let c=0;c<SIZE;c++){
+      let runStart = 0;
+      for(let r=1;r<=SIZE;r++){
+        const prev = b[r-1][c];
+        const cur = r<SIZE ? b[r][c] : null;
+        if(cur === prev && cur !== null){ continue; }
+        const runLen = r - runStart;
+        if(runLen >= 3 && prev !== null){
+          for(let k=runStart;k<r;k++) matched.add(key(k,c));
+        }
+        runStart = r;
+      }
+    }
+    return matched;
+  }
+
+  function collapseBoard(){
+    for(let c=0;c<SIZE;c++){
+      const vals = [];
+      for(let r=SIZE-1;r>=0;r--){
+        if(board[r][c] !== null) vals.push(board[r][c]);
+      }
+      for(let r=SIZE-1;r>=0;r--){
+        board[r][c] = vals.length ? vals.shift() : null;
+      }
+    }
+  }
+
+  function updateScoreDisplay(){
+    scoreEl.textContent = score;
+    if(score > record){
+      record = score;
+      recordEl.textContent = record;
+      localStorage.setItem('catsTetrisRecord', String(record));
+    }
+  }
+
+  function render(matchedSet){
+    boardEl.querySelectorAll('.cell').forEach(el => el.remove());
+    for(let r=0;r<SIZE;r++){
+      for(let c=0;c<SIZE;c++){
+        const cellDiv = document.createElement('div');
+        cellDiv.className = 'cell';
+        let colorIndex = board[r][c];
+        if(piece && piece.row===r && piece.col===c){
+          colorIndex = piece.color;
+          cellDiv.classList.add('falling');
+        }
+        if(matchedSet && matchedSet.has(r*SIZE+c)) cellDiv.classList.add('pop');
+        if(colorIndex !== null && colorIndex !== undefined){
+          cellDiv.innerHTML = catSVG(colorIndex);
+        }
+        boardEl.appendChild(cellDiv);
+      }
+    }
+    nextPreviewEl.innerHTML = catSVG(nextColor);
+  }
+
+  function resolveMatches(callback){
+    let cascade = 0;
+    function step(){
+      const matches = findMatches(board);
+      if(matches.size === 0){
+        callback();
+        return;
+      }
+      cascade++;
+      score += matches.size * 10 * cascade;
+      updateScoreDisplay();
+      matches.forEach(i => { board[Math.floor(i/SIZE)][i%SIZE] = null; });
+      render(matches);
+      setTimeout(() => {
+        collapseBoard();
+        render();
+        setTimeout(step, 200);
+      }, 200);
+    }
+    step();
+  }
+
+  function speedForLevel(){
+    const level = Math.floor(piecesLanded / 8);
+    return Math.max(200, 750 - level*50);
+  }
+
+  function scheduleTick(){
+    clearTimeout(tickTimer);
+    if(gameOver) return;
+    currentSpeed = speedForLevel();
+    tickTimer = setTimeout(gravityTick, currentSpeed);
+  }
+
+  function gravityTick(){
+    if(gameOver || !piece) return;
+    const newRow = piece.row + 1;
+    if(newRow >= SIZE || board[newRow][piece.col] !== null){
+      landPiece();
+    } else {
+      piece.row = newRow;
+      render();
+      scheduleTick();
+    }
+  }
+
+  function landPiece(){
+    clearTimeout(tickTimer);
+    board[piece.row][piece.col] = piece.color;
+    piecesLanded++;
+    piece = null;
+    render();
+    setTimeout(() => {
+      resolveMatches(() => {
+        if(!gameOver){
+          spawnPiece();
+          if(!gameOver) scheduleTick();
+        }
+      });
+    }, 150);
+  }
+
+  function spawnPiece(){
+    const startCol = Math.floor(SIZE/2);
+    if(board[0][startCol] !== null){
+      gameOver = true;
+      render();
+      showGameOver();
+      return;
+    }
+    piece = { row:0, col:startCol, color: nextColor };
+    nextColor = randColor();
+    render();
+  }
+
+  function moveLeft(){
+    if(!piece || gameOver) return;
+    const nc = piece.col - 1;
+    if(nc >= 0 && board[piece.row][nc] === null){
+      piece.col = nc;
+      render();
+    }
+  }
+  function moveRight(){
+    if(!piece || gameOver) return;
+    const nc = piece.col + 1;
+    if(nc < SIZE && board[piece.row][nc] === null){
+      piece.col = nc;
+      render();
+    }
+  }
+  function softDrop(){
+    if(!piece || gameOver) return;
+    clearTimeout(tickTimer);
+    gravityTick();
+  }
+  function hardDrop(){
+    if(!piece || gameOver) return;
+    clearTimeout(tickTimer);
+    while(piece.row + 1 < SIZE && board[piece.row+1][piece.col] === null){
+      piece.row++;
+    }
+    landPiece();
+  }
+
+  function showGameOver(){
+    finalScoreText.textContent = 'Очки: ' + score + (score >= record ? ' — новый рекорд!' : '');
+    overlayEl.classList.remove('hidden');
+  }
+
+  function newGame(){
+    board = emptyBoard();
+    score = 0;
+    gameOver = false;
+    piecesLanded = 0;
+    nextColor = randColor();
+    overlayEl.classList.add('hidden');
+    updateScoreDisplay();
+    spawnPiece();
+    if(!gameOver) scheduleTick();
+  }
+
+  document.getElementById('leftBtn').addEventListener('click', moveLeft);
+  document.getElementById('rightBtn').addEventListener('click', moveRight);
+  document.getElementById('downBtn').addEventListener('click', softDrop);
+  document.getElementById('dropBtn').addEventListener('click', hardDrop);
+  document.getElementById('newGameBtn').addEventListener('click', newGame);
+  document.getElementById('restartBtn').addEventListener('click', newGame);
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowLeft'){ moveLeft(); e.preventDefault(); }
+    else if(e.key === 'ArrowRight'){ moveRight(); e.preventDefault(); }
+    else if(e.key === 'ArrowDown'){ softDrop(); e.preventDefault(); }
+    else if(e.key === ' '){ hardDrop(); e.preventDefault(); }
+  });
+
+  newGame();
+})();
+</script>
+</body>
+</html>
