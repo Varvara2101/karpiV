@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Квиз про кошек</title>
+<style>
+  :root {
+    --ag-dark: #1f3a24;
+    --ag-mid: #3f6b3f;
+    --ag-accent: #5f8f5a;
+    --ag-light: #dcead6;
+    --ag-pale: #f2f7ef;
+    --ag-text: #22331f;
+    --ag-bg: #eaf2e5;
+    --ag-error: #a32d2d;
+    --ag-error-bg: #fbeaea;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--ag-bg);
+    color: var(--ag-text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  #app {
+    width: 100%;
+    max-width: 400px;
+  }
+  .card {
+    background: var(--ag-pale);
+    border: 1px solid var(--ag-light);
+    border-radius: 14px;
+    padding: 1.5rem 1.25rem;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ag-dark);
+    margin: 0 0 4px;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--ag-mid);
+    margin: 0 0 20px;
+  }
+  input[type="text"] {
+    width: 100%;
+    height: 42px;
+    border-radius: 8px;
+    border: 1px solid var(--ag-accent);
+    padding: 0 12px;
+    font-size: 15px;
+    margin-bottom: 6px;
+    background: #fff;
+    color: var(--ag-text);
+  }
+  input[type="text"]:focus {
+    outline: 2px solid var(--ag-mid);
+    outline-offset: 1px;
+  }
+  .error-text {
+    font-size: 12px;
+    color: var(--ag-error);
+    min-height: 16px;
+    margin-bottom: 8px;
+    text-align: left;
+  }
+  button {
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary {
+    width: 100%;
+    height: 42px;
+    border-radius: 8px;
+    border: none;
+    background: var(--ag-mid);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .btn-primary:hover { background: var(--ag-dark); }
+  .top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .q-label {
+    font-size: 13px;
+    color: var(--ag-mid);
+    font-weight: 600;
+  }
+  .score-pill {
+    background: var(--ag-light);
+    color: var(--ag-dark);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
+  .timer-track {
+    height: 7px;
+    background: var(--ag-pale);
+    border: 1px solid var(--ag-light);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .timer-fill {
+    height: 100%;
+    background: var(--ag-mid);
+    transition: width 1s linear, background-color 0.3s;
+  }
+  .timer-label {
+    text-align: right;
+    font-size: 12px;
+    color: var(--ag-mid);
+    margin: 0 0 14px;
+    font-weight: 600;
+  }
+  .question-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ag-dark);
+    margin: 0 0 16px;
+  }
+  .opts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .opt-btn {
+    width: 100%;
+    text-align: left;
+    padding: 11px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--ag-accent);
+    background: #fff;
+    color: var(--ag-text);
+    font-size: 14px;
+  }
+  .opt-btn:hover:not(:disabled) { background: var(--ag-light); }
+  .opt-btn:disabled { cursor: default; }
+  .opt-correct {
+    background: var(--ag-light) !important;
+    border-color: var(--ag-mid) !important;
+    color: var(--ag-dark) !important;
+  }
+  .opt-wrong {
+    background: var(--ag-error-bg) !important;
+    border-color: var(--ag-error) !important;
+    color: var(--ag-error) !important;
+  }
+  .result-card {
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .result-name {
+    font-size: 14px;
+    color: var(--ag-mid);
+    margin: 0 0 4px;
+  }
+  .result-score {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--ag-dark);
+    margin: 0;
+  }
+  .board-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ag-dark);
+    margin: 0 0 8px;
+  }
+  .board {
+    border: 1px solid var(--ag-light);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .board-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: #fff;
+    border-bottom: 1px solid var(--ag-light);
+  }
+  .board-row:nth-child(even) { background: var(--ag-pale); }
+  .board-row:last-child { border-bottom: none; }
+  .board-name { font-size: 13px; color: var(--ag-text); }
+  .board-name.me { font-weight: 700; color: var(--ag-dark); }
+  .board-score { font-size: 13px; font-weight: 600; color: var(--ag-dark); }
+  .empty-board {
+    padding: 14px;
+    font-size: 13px;
+    color: var(--ag-mid);
+    text-align: center;
+    background: #fff;
+  }
+  .paw { font-size: 40px; line-height: 1; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const QUESTIONS = [
+  { q: 'Сколько постоянных зубов у взрослой кошки?', opts: ['26', '28', '30', '32'], correct: 2 },
+  { q: 'Сколько часов в сутки в среднем спит кошка?', opts: ['6–8 часов', '8–10 часов', '12–16 часов', '18–20 часов'], correct: 2 },
+  { q: 'Какова максимальная скорость бега домашней кошки?', opts: ['20 км/ч', '30 км/ч', '48 км/ч', '65 км/ч'], correct: 2 },
+  { q: 'Какой вкус кошки физиологически не способны ощущать?', opts: ['Солёный', 'Кислый', 'Сладкий', 'Горький'], correct: 2 },
+  { q: 'Какова средняя продолжительность жизни домашней кошки (по данным AVMA)?', opts: ['5–8 лет', '8–11 лет', '12–18 лет', '20–25 лет'], correct: 2 }
+];
+
+const LB_KEY = 'catQuizLeaderboard';
+
+let state = {
+  screen: 'start',
+  nickname: '',
+  qIndex: 0,
+  score: 0,
+  timer: 30,
+  timerId: null,
+  answered: false
+};
+
+function loadLeaderboard() {
+  try {
+    const raw = localStorage.getItem(LB_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+
+function saveLeaderboard(list) {
+  try { localStorage.setItem(LB_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
+function render() {
+  const app = document.getElementById('app');
+  if (state.screen === 'start') app.innerHTML = renderStart();
+  else if (state.screen === 'quiz') app.innerHTML = renderQuiz();
+  else app.innerHTML = renderEnd();
+  attachHandlers();
+}
+
+function renderStart() {
+  return `
+    <div class="card" style="text-align:center;">
+      <div class="paw">🐾</div>
+      <h1>Квиз про кошек</h1>
+      <p class="subtitle">5 вопросов · 30 секунд на ответ · проверенные факты</p>
+      <input id="nickname" type="text" placeholder="Введите ваш никнейм" maxlength="24" />
+      <div id="nick-error" class="error-text"></div>
+      <button id="start-btn" class="btn-primary">Начать квиз</button>
+    </div>`;
+}
+
+function renderQuiz() {
+  const q = QUESTIONS[state.qIndex];
+  const pct = (state.timer / 30) * 100;
+  const isLow = state.timer <= 10;
+  return `
+    <div class="top-row">
+      <span class="q-label">Вопрос ${state.qIndex + 1} из ${QUESTIONS.length}</span>
+      <span class="score-pill">Очки: ${state.score}</span>
+    </div>
+    <div class="timer-track">
+      <div class="timer-fill" id="timer-fill" style="width:${pct}%;background:${isLow ? 'var(--ag-error)' : 'var(--ag-mid)'};"></div>
+    </div>
+    <p class="timer-label" id="timer-label" style="color:${isLow ? 'var(--ag-error)' : 'var(--ag-mid)'};">${state.timer} сек</p>
+    <div class="card">
+      <p class="question-text">${q.q}</p>
+      <div class="opts" id="opts">
+        ${q.opts.map((o, i) => `<button class="opt-btn" data-i="${i}">${o}</button>`).join('')}
+      </div>
+    </div>`;
+}
+
+function renderEnd() {
+  const board = loadLeaderboard().sort((a, b) => b.score - a.score);
+  const rows = board.length
+    ? board.map(p => `
+        <div class="board-row">
+          <span class="board-name ${p.name === state.nickname ? 'me' : ''}">${escapeHtml(p.name)}</span>
+          <span class="board-score">${p.score}</span>
+        </div>`).join('')
+    : '<div class="empty-board">Пока нет результатов</div>';
+  return `
+    <div class="card result-card">
+      <p class="result-name">${escapeHtml(state.nickname)}, ваш результат</p>
+      <p class="result-score">${state.score} / ${QUESTIONS.length}</p>
+    </div>
+    <p class="board-title">Таблица лидеров</p>
+    <div class="board">${rows}</div>
+    <button id="again-btn" class="btn-primary">Играть ещё раз</button>`;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function attachHandlers() {
+  if (state.screen === 'start') {
+    const input = document.getElementById('nickname');
+    document.getElementById('start-btn').onclick = () => {
+      const val = input.value.trim();
+      if (!val) {
+        document.getElementById('nick-error').textContent = 'Введите никнейм, чтобы начать';
+        return;
+      }
+      state.nickname = val;
+      state.qIndex = 0;
+      state.score = 0;
+      state.screen = 'quiz';
+      startTimer();
+      render();
+    };
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('start-btn').click(); });
+  } else if (state.screen === 'quiz') {
+    document.querySelectorAll('.opt-btn').forEach(btn => {
+      btn.onclick = () => handleAnswer(parseInt(btn.dataset.i));
+    });
+  } else {
+    document.getElementById('again-btn').onclick = () => {
+      state.screen = 'start';
+      render();
+    };
+  }
+}
+
+function startTimer() {
+  state.timer = 30;
+  state.answered = false;
+  clearInterval(state.timerId);
+  state.timerId = setInterval(() => {
+    state.timer--;
+    if (state.timer <= 0) {
+      clearInterval(state.timerId);
+      if (!state.answered) nextQuestion(false);
+    } else {
+      const fill = document.getElementById('timer-fill');
+      const label = document.getElementById('timer-label');
+      const isLow = state.timer <= 10;
+      if (fill) {
+        fill.style.width = (state.timer / 30 * 100) + '%';
+        fill.style.background = isLow ? 'var(--ag-error)' : 'var(--ag-mid)';
+      }
+      if (label) {
+        label.textContent = state.timer + ' сек';
+        label.style.color = isLow ? 'var(--ag-error)' : 'var(--ag-mid)';
+      }
+    }
+  }, 1000);
+}
+
+function handleAnswer(i) {
+  if (state.answered) return;
+  state.answered = true;
+  clearInterval(state.timerId);
+  const q = QUESTIONS[state.qIndex];
+  if (i === q.correct) state.score++;
+  document.querySelectorAll('.opt-btn').forEach((btn, idx) => {
+    btn.disabled = true;
+    if (idx === q.correct) btn.classList.add('opt-correct');
+    else if (idx === i) btn.classList.add('opt-wrong');
+  });
+  setTimeout(() => nextQuestion(true), 700);
+}
+
+function nextQuestion(fromAnswer) {
+  if (!fromAnswer) {
+    document.querySelectorAll('.opt-btn').forEach((btn, idx) => {
+      btn.disabled = true;
+      if (idx === QUESTIONS[state.qIndex].correct) btn.classList.add('opt-correct');
+    });
+  }
+  setTimeout(() => {
+    state.qIndex++;
+    if (state.qIndex >= QUESTIONS.length) {
+      const board = loadLeaderboard();
+      board.push({ name: state.nickname, score: state.score });
+      saveLeaderboard(board);
+      state.screen = 'end';
+      render();
+    } else {
+      state.screen = 'quiz';
+      startTimer();
+      render();
+    }
+  }, fromAnswer ? 0 : 600);
+}
+
+render();
+</script>
+</body>
+</html>

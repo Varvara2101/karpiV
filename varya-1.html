@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Варя — обо мне</title>
+<style>
+  :root {
+    --paper: #FBF6EC;
+    --ink: #1C1B2E;
+    --coral: #FF6B4A;
+    --teal: #2A9D93;
+    --gold: #FFB84C;
+    --line: #1C1B2E;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-image:
+      linear-gradient(var(--ink) 1px, transparent 1px),
+      linear-gradient(90deg, var(--ink) 1px, transparent 1px);
+    background-size: 34px 34px;
+    background-position: -1px -1px;
+    background-blend-mode: normal;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: var(--paper);
+    opacity: 0.94;
+    z-index: -1;
+  }
+
+  /* ---------- HERO ---------- */
+
+  .hero {
+    min-height: 78vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 8vh 8vw 6vh;
+    position: relative;
+    border-bottom: 3px solid var(--ink);
+  }
+
+  .hero svg.scribble {
+    position: absolute;
+    top: 6%;
+    right: 4%;
+    width: min(38vw, 320px);
+    height: auto;
+    opacity: 0;
+    animation: fadeDraw 1.4s ease 0.3s forwards;
+  }
+
+  .hero svg.scribble path {
+    stroke-dasharray: 900;
+    stroke-dashoffset: 900;
+    animation: draw 1.8s ease 0.4s forwards;
+  }
+
+  @keyframes draw {
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes fadeDraw {
+    to { opacity: 1; }
+  }
+
+  .hero-name {
+    font-size: clamp(3.2rem, 15vw, 9rem);
+    font-weight: 900;
+    line-height: 0.86;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    opacity: 0;
+    transform: translateY(30px);
+    animation: riseIn 0.8s cubic-bezier(.2,.9,.25,1) 0.15s forwards;
+  }
+
+  .hero-name span {
+    color: var(--coral);
+    -webkit-text-stroke: 2px var(--ink);
+    display: inline-block;
+  }
+
+  @keyframes riseIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-line {
+    margin-top: 1.4rem;
+    font-size: clamp(1.05rem, 2.4vw, 1.4rem);
+    max-width: 34ch;
+    line-height: 1.5;
+    opacity: 0;
+    animation: riseIn 0.8s cubic-bezier(.2,.9,.25,1) 0.4s forwards;
+  }
+
+  .hero-tag {
+    margin-top: 2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--ink);
+    color: var(--paper);
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    opacity: 0;
+    animation: riseIn 0.8s cubic-bezier(.2,.9,.25,1) 0.6s forwards;
+  }
+
+  .hero-tag::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--coral);
+    display: inline-block;
+  }
+
+  /* ---------- LAYOUT ---------- */
+
+  main {
+    padding: 6vh 8vw 4vh;
+    display: flex;
+    flex-direction: column;
+    gap: 6vh;
+  }
+
+  h2 {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.6rem;
+  }
+
+  /* ---------- ABOUT CARD ---------- */
+
+  .about-card {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 26px;
+    padding: clamp(1.6rem, 4vw, 3rem);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .about-card h2 { color: var(--paper); }
+
+  .about-card p {
+    max-width: 58ch;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #E8E5F2;
+  }
+
+  .facts {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .facts li {
+    background: rgba(251, 246, 236, 0.06);
+    border: 1px solid rgba(251, 246, 236, 0.22);
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: transform 0.25s ease, background 0.25s ease;
+  }
+
+  .facts li:hover {
+    transform: translateY(-3px);
+    background: rgba(251, 246, 236, 0.12);
+  }
+
+  .facts li .num {
+    font-size: 1.8rem;
+  }
+
+  .facts li .txt {
+    font-size: 0.95rem;
+    line-height: 1.35;
+    color: #F1EFF8;
+  }
+
+  .facts li .txt b {
+    display: block;
+    font-size: 1.05rem;
+    color: var(--paper);
+  }
+
+  /* ---------- HOBBIES ---------- */
+
+  .hobby-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.4rem;
+  }
+
+  .hobby-card {
+    background: var(--paper);
+    border: 3px solid var(--ink);
+    padding: 1.8rem 1.5rem 2rem;
+    position: relative;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .hobby-card:nth-child(1) { border-radius: 22px 22px 22px 4px; transform: rotate(-1.4deg); }
+  .hobby-card:nth-child(2) { border-radius: 4px 22px 22px 22px; transform: rotate(1deg); }
+  .hobby-card:nth-child(3) { border-radius: 22px 4px 22px 22px; transform: rotate(-0.6deg); }
+
+  .hobby-card:hover {
+    transform: rotate(0deg) translateY(-6px);
+  }
+
+  .hobby-card:nth-child(1):hover { box-shadow: 8px 8px 0 var(--coral); }
+  .hobby-card:nth-child(2):hover { box-shadow: 8px 8px 0 var(--teal); }
+  .hobby-card:nth-child(3):hover { box-shadow: 8px 8px 0 var(--gold); }
+
+  .hobby-icon {
+    width: 52px;
+    height: 52px;
+  }
+
+  .hobby-card h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+  }
+
+  .hobby-card p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #3A3950;
+  }
+
+  /* ---------- FOOTER ---------- */
+
+  footer {
+    padding: 4vh 8vw 6vh;
+    border-top: 3px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  footer p {
+    font-size: 0.9rem;
+    color: #4A4960;
+  }
+
+  .cats-btn {
+    background: var(--coral);
+    color: var(--ink);
+    border: 3px solid var(--ink);
+    border-radius: 999px;
+    padding: 0.6rem 1.3rem;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+
+  .cats-btn:active { transform: scale(0.94); }
+
+  /* ---------- RESPONSIVE ---------- */
+
+  @media (max-width: 760px) {
+    .hero { min-height: 60vh; padding: 10vh 6vw 5vh; }
+    .hero svg.scribble { display: none; }
+    .hobby-grid { grid-template-columns: 1fr; }
+    .about-card { border-radius: 20px; }
+    main { padding: 5vh 6vw 3vh; gap: 4.5vh; }
+    footer { padding: 4vh 6vw 5vh; flex-direction: column; align-items: flex-start; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+    .hero-name, .hero-line, .hero-tag, .hero svg.scribble, .hero svg.scribble path {
+      opacity: 1 !important; transform: none !important; stroke-dashoffset: 0 !important;
+    }
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--coral);
+    outline-offset: 3px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <svg class="scribble" viewBox="0 0 300 260" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M40 220 C 60 120, 120 60, 180 90 C 230 115, 200 180, 150 170 C 110 162, 130 100, 190 60 C 230 34, 270 50, 260 90" stroke="#1C1B2E" stroke-width="4" stroke-linecap="round"/>
+  </svg>
+  <h1 class="hero-name">Привет,<br>это <span>Варя</span></h1>
+  <p class="hero-line">Мне 13 лет. Я танцую, играю на пианино и придумываю здания — эта страница обо мне.</p>
+  <span class="hero-tag">Добро пожаловать</span>
+</header>
+
+<main>
+  <section class="about-card">
+    <h2>Обо мне</h2>
+    <p>Я люблю движение, звук и форму — во всём, за что берусь, мне важно, чтобы было красиво и продуманно. Вот немного фактов обо мне:</p>
+    <ul class="facts">
+      <li>
+        <span class="num">🎂</span>
+        <span class="txt"><b>13 лет</b>сейчас мне столько</span>
+      </li>
+      <li>
+        <span class="num">🐾</span>
+        <span class="txt"><b id="catsCount">5 котов</b>живут у меня дома</span>
+      </li>
+      <li>
+        <span class="num">🎬</span>
+        <span class="txt"><b>«Майкл» (2026)</b>любимый фильм</span>
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Мои увлечения</h2>
+    <div class="hobby-grid">
+      <article class="hobby-card">
+        <svg class="hobby-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="32" cy="12" r="6" fill="#1C1B2E"/>
+          <path d="M32 18 L32 34 M32 22 L14 16 M32 22 L50 30 M32 34 L18 54 M32 34 L46 50" stroke="#1C1B2E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h3>Контемпорари</h3>
+        <p>Современный танец — свобода в движении и способ рассказать историю без слов.</p>
+      </article>
+
+      <article class="hobby-card">
+        <svg class="hobby-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="6" y="16" width="52" height="32" rx="3" fill="#1C1B2E"/>
+          <rect x="10" y="20" width="6" height="20" fill="#FBF6EC"/>
+          <rect x="18" y="20" width="6" height="20" fill="#FBF6EC"/>
+          <rect x="26" y="20" width="6" height="20" fill="#FBF6EC"/>
+          <rect x="34" y="20" width="6" height="20" fill="#FBF6EC"/>
+          <rect x="42" y="20" width="6" height="20" fill="#FBF6EC"/>
+          <rect x="50" y="20" width="4" height="20" fill="#FBF6EC"/>
+        </svg>
+        <h3>Фортепиано</h3>
+        <p>Играю каждый день — люблю, когда пальцы находят мелодию быстрее, чем я успеваю подумать.</p>
+      </article>
+
+      <article class="hobby-card">
+        <svg class="hobby-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M10 54 L10 26 L32 12 L54 26 L54 54" stroke="#1C1B2E" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+          <path d="M22 54 L22 34 L42 34 L42 54" stroke="#1C1B2E" stroke-width="4" stroke-linejoin="round"/>
+          <line x1="6" y1="54" x2="58" y2="54" stroke="#1C1B2E" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <h3>Архитектура и моделирование</h3>
+        <p>Придумываю здания и делаю макеты — нравится смотреть, как из линий вырастает пространство.</p>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Спасибо, что заглянули на мою страницу 🐱</p>
+  <button class="cats-btn" id="catsBtn" type="button">Погладить котов</button>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('catsBtn');
+    var counterEl = document.getElementById('catsCount');
+    var pats = 0;
+
+    btn.addEventListener('click', function () {
+      pats += 1;
+      btn.textContent = pats === 1 ? 'Мурр! Ещё раз?' : 'Мурр! (' + pats + ')';
+      counterEl.textContent = '5 котов';
+      counterEl.style.transform = 'scale(1.08)';
+      setTimeout(function () {
+        counterEl.style.transform = 'scale(1)';
+      }, 180);
+    });
+  })();
+</script>
+
+</body>
+</html>
